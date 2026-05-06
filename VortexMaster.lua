@@ -28,7 +28,7 @@ if not table.foreach then table.foreach = function(t, f) for k, v in pairs(t) do
 local VerifyNPC = function() return true end
 local AttackDistance = function() end 
 -- [ END OF FIXES, YOUR EXACT SCRIPT STARTS BELOW ] --
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/RedzLibV5/main/Source.lua"))()
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/RedzLibV5/main/Source.Lua"))()
 local Window = redzlib:MakeWindow({
  Title = "vortex fx  : Blox Fruits",
  SubTitle = "by syzo gamer ",
