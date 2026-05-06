@@ -30,7 +30,7 @@ local AttackDistance = function() end
 -- [ END OF FIXES, YOUR EXACT SCRIPT STARTS BELOW ] --
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = redzlib:MakeWindow({
+local Window = OrionLib:MakeWindow({Name = "vortex fx : Blox Fruits", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
  Title = "vortex fx  : Blox Fruits",
  SubTitle = "by syzo gamer ",
  SaveFolder = "redz Hub | Blox Fruits.lua"
