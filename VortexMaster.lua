@@ -29,7 +29,7 @@ local VerifyNPC = function() return true end
 local AttackDistance = function() end 
 -- [ END OF FIXES, YOUR EXACT SCRIPT STARTS BELOW ] --
 
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/RedzLibV5/main/Source.lua"))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = redzlib:MakeWindow({
  Title = "vortex fx  : Blox Fruits",
  SubTitle = "by syzo gamer ",
@@ -38,7 +38,7 @@ local Window = redzlib:MakeWindow({
 local AFKOptions = {}
 local Discord = Window:MakeTab({"Discord", "Info"})
 Discord:AddDiscordInvite({
- Name = "redz Hub | Community",
+ Name = "syzo Hub | Community",
  Description = "Join our discord community to receive information about the next update",
  Logo = "rbxassetid://15298567397",
  Invite = "https://discord.gg/sAUgSnu42T"
