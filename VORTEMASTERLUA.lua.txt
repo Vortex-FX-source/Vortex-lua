@@ -29,14 +29,279 @@ local VerifyNPC = function() return true end
 local AttackDistance = function() end 
 -- [ END OF FIXES, YOUR EXACT SCRIPT STARTS BELOW ] --
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({
-    Name = "vortex fx : Blox Fruits",
-    HidePremium = false,
-    SaveConfig = true,
-    ConfigFolder = "VortexFX",
-    IntroText = "by syzo gamer"
-})
+-- =======================================================
+-- [[ VORTEX FX CUSTOM UI ENGINE ]]
+-- =======================================================
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local VortexHubKey = "SYZO2026"
+local AccentColor = Color3.fromRGB(138, 43, 226) 
+
+local Screen = Instance.new("ScreenGui")
+Screen.Name = "VortexFX_Hub"
+Screen.Parent = CoreGui
+Screen.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame", Screen)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Active = true
+MainFrame.Draggable = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local TopBar = Instance.new("Frame", MainFrame)
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 8)
+
+local MainTitle = Instance.new("TextLabel", TopBar)
+MainTitle.Size = UDim2.new(0.5, 0, 1, 0)
+MainTitle.Position = UDim2.new(0.02, 0, 0, 0)
+MainTitle.BackgroundTransparency = 1
+MainTitle.Text = "VORTEX FX MASTER"
+MainTitle.TextColor3 = AccentColor
+MainTitle.Font = Enum.Font.GothamBold
+MainTitle.TextSize = 18
+MainTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local SettingsBtn = Instance.new("TextButton", TopBar)
+SettingsBtn.Size = UDim2.new(0, 80, 0, 25)
+SettingsBtn.Position = UDim2.new(0.65, 0, 0.15, 0)
+SettingsBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+SettingsBtn.Text = "Settings"
+SettingsBtn.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 6)
+
+local CreditsBtn = Instance.new("TextButton", TopBar)
+CreditsBtn.Size = UDim2.new(0, 80, 0, 25)
+CreditsBtn.Position = UDim2.new(0.82, 0, 0.15, 0)
+CreditsBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+CreditsBtn.Text = "Credits"
+CreditsBtn.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", CreditsBtn).CornerRadius = UDim.new(0, 6)
+
+local Sidebar = Instance.new("ScrollingFrame", MainFrame)
+Sidebar.Size = UDim2.new(0, 130, 0, 300)
+Sidebar.Position = UDim2.new(0, 10, 0, 45)
+Sidebar.BackgroundTransparency = 1
+Sidebar.ScrollBarThickness = 0
+local SidebarLayout = Instance.new("UIListLayout", Sidebar)
+SidebarLayout.Padding = UDim.new(0, 5)
+
+local ContentArea = Instance.new("Frame", MainFrame)
+ContentArea.Size = UDim2.new(0, 340, 0, 300)
+ContentArea.Position = UDim2.new(0, 150, 0, 45)
+ContentArea.BackgroundTransparency = 1
+
+local SettingsPage = Instance.new("ScrollingFrame", ContentArea)
+SettingsPage.Size = UDim2.new(1, 0, 1, 0)
+SettingsPage.BackgroundTransparency = 1
+SettingsPage.ScrollBarThickness = 2
+SettingsPage.Visible = false
+Instance.new("UIListLayout", SettingsPage).Padding = UDim.new(0, 8)
+
+local CreditsPage = Instance.new("ScrollingFrame", ContentArea)
+CreditsPage.Size = UDim2.new(1, 0, 1, 0)
+CreditsPage.BackgroundTransparency = 1
+CreditsPage.ScrollBarThickness = 2
+CreditsPage.Visible = false
+Instance.new("UIListLayout", CreditsPage).Padding = UDim.new(0, 8)
+
+SettingsBtn.MouseButton1Click:Connect(function()
+    for _, c in pairs(ContentArea:GetChildren()) do if c:IsA("ScrollingFrame") then c.Visible = false end end
+    SettingsPage.Visible = true
+end)
+CreditsBtn.MouseButton1Click:Connect(function()
+    for _, c in pairs(ContentArea:GetChildren()) do if c:IsA("ScrollingFrame") then c.Visible = false end end
+    CreditsPage.Visible = true
+end)
+
+local function CreateLabel(page, text, color)
+    local Label = Instance.new("TextLabel", page)
+    Label.Size = UDim2.new(1, -10, 0, 25)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.TextColor3 = color or AccentColor
+    Label.Font = Enum.Font.GothamBold
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    local ret = {}
+    function ret:Set(txt) Label.Text = txt end
+    return ret
+end
+
+local function CreateButton(page, text, callback)
+    local Btn = Instance.new("TextButton", page)
+    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+    Btn.MouseButton1Click:Connect(callback)
+    return Btn
+end
+
+local function CreateInput(page, placeholder, callback)
+    local Box = Instance.new("TextBox", page)
+    Box.Size = UDim2.new(1, -10, 0, 35)
+    Box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Box.PlaceholderText = placeholder
+    Box.Text = ""
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 6)
+    Box.FocusLost:Connect(function() pcall(callback, Box.Text) end)
+    return Box
+end
+
+-- Key System
+CreateLabel(SettingsPage, "Vortex Key System")
+local KeyInputBox = CreateInput(SettingsPage, "Enter Key Here...", function() end)
+local VerifyBtn = CreateButton(SettingsPage, "Verify Key", function() end)
+VerifyBtn.MouseButton1Click:Connect(function()
+    if KeyInputBox.Text == VortexHubKey then
+        VerifyBtn.Text = "Key Verified!"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    else
+        VerifyBtn.Text = "Invalid Key!"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        task.wait(1.5)
+        VerifyBtn.Text = "Verify Key"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end
+end)
+
+CreateLabel(SettingsPage, "Theme Colors")
+CreateButton(SettingsPage, "Change Theme: Purple", function() AccentColor = Color3.fromRGB(138, 43, 226); MainTitle.TextColor3 = AccentColor end)
+CreateButton(SettingsPage, "Change Theme: Red", function() AccentColor = Color3.fromRGB(255, 50, 50); MainTitle.TextColor3 = AccentColor end)
+
+CreateLabel(CreditsPage, "Developer Info")
+CreateButton(CreditsPage, "Discord: vortex_fx (Copy)", function() setclipboard("vortex_fx") end)
+CreateButton(CreditsPage, "YouTube: @syzo_w (Copy)", function() setclipboard("https://youtube.com/@syzo_w") end)
+
+-- ORION COMPATIBILITY WRAPPER
+local OrionLib = {}
+local FirstTab = nil
+
+function OrionLib:MakeWindow(cfg)
+    local Window = {}
+    function Window:MakeTab(tcfg)
+        local tabName = type(tcfg) == "table" and tcfg.Name or tcfg
+        local TabBtn = Instance.new("TextButton", Sidebar)
+        TabBtn.Size = UDim2.new(1, 0, 0, 35)
+        TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        TabBtn.Text = tabName
+        TabBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TabBtn.Font = Enum.Font.GothamSemibold
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+
+        local Page = Instance.new("ScrollingFrame", ContentArea)
+        Page.Size = UDim2.new(1, 0, 1, 0)
+        Page.BackgroundTransparency = 1
+        Page.ScrollBarThickness = 2
+        Page.Visible = false
+        Instance.new("UIListLayout", Page).Padding = UDim.new(0, 8)
+
+        if not FirstTab then FirstTab = Page; Page.Visible = true; TabBtn.TextColor3 = AccentColor end
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, c in pairs(ContentArea:GetChildren()) do if c:IsA("ScrollingFrame") then c.Visible = false end end
+            for _, c in pairs(Sidebar:GetChildren()) do if c:IsA("TextButton") then c.TextColor3 = Color3.fromRGB(200, 200, 200) end end
+            Page.Visible = true
+            TabBtn.TextColor3 = AccentColor
+        end)
+
+        local Tab = {}
+        function Tab:AddToggle(d)
+            local ToggleBtn = Instance.new("TextButton", Page)
+            ToggleBtn.Size = UDim2.new(1, -10, 0, 35)
+            ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            ToggleBtn.Text = "  " .. d.Name
+            ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+            ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 6)
+            local Indicator = Instance.new("Frame", ToggleBtn)
+            Indicator.Size = UDim2.new(0, 15, 0, 15)
+            Indicator.Position = UDim2.new(1, -25, 0.5, -7.5)
+            Indicator.BackgroundColor3 = d.Default and AccentColor or Color3.fromRGB(60, 60, 60)
+            Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
+            local state = d.Default or false
+            ToggleBtn.MouseButton1Click:Connect(function()
+                state = not state
+                Indicator.BackgroundColor3 = state and AccentColor or Color3.fromRGB(60, 60, 60)
+                pcall(d.Callback, state)
+            end)
+            local ret = {}
+            function ret:Set(val) state = val; Indicator.BackgroundColor3 = state and AccentColor or Color3.fromRGB(60, 60, 60); pcall(d.Callback, state) end
+            return ret
+        end
+        function Tab:AddButton(d) CreateButton(Page, d.Name, d.Callback) end
+        function Tab:AddSection(d) CreateLabel(Page, "--- " .. d.Name .. " ---", Color3.fromRGB(150,150,150)) end
+        function Tab:AddLabel(text) return CreateLabel(Page, text, Color3.fromRGB(200,200,200)) end
+        function Tab:AddParagraph(d) return CreateLabel(Page, type(d)=="string" and d or d[1], Color3.fromRGB(200,200,200)) end
+        function Tab:AddTextbox(d) CreateInput(Page, d.Name, d.Callback) end
+        function Tab:AddSlider(d)
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -10, 0, 45)
+            frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+            local lbl = Instance.new("TextLabel", frame)
+            lbl.Size = UDim2.new(1, -10, 0, 20)
+            lbl.Position = UDim2.new(0, 5, 0, 0)
+            lbl.BackgroundTransparency = 1
+            lbl.Text = d.Name .. ": " .. tostring(d.Default)
+            lbl.TextColor3 = Color3.fromRGB(255,255,255)
+            lbl.TextXAlignment = Enum.TextXAlignment.Left
+            local barBg = Instance.new("TextButton", frame)
+            barBg.Size = UDim2.new(1, -10, 0, 10)
+            barBg.Position = UDim2.new(0, 5, 0, 25)
+            barBg.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            barBg.Text = ""
+            local fill = Instance.new("Frame", barBg)
+            fill.Size = UDim2.new((d.Default-d.Min)/(d.Max-d.Min), 0, 1, 0)
+            fill.BackgroundColor3 = AccentColor
+            local dragging = false
+            barBg.MouseButton1Down:Connect(function() dragging = true end)
+            UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end end)
+            RunService.RenderStepped:Connect(function()
+                if dragging then
+                    local mousePos = UserInputService:GetMouseLocation().X
+                    local percent = math.clamp((mousePos - barBg.AbsolutePosition.X) / barBg.AbsoluteSize.X, 0, 1)
+                    fill.Size = UDim2.new(percent, 0, 1, 0)
+                    local val = math.floor(d.Min + ((d.Max - d.Min) * percent))
+                    lbl.Text = d.Name .. ": " .. tostring(val)
+                    pcall(d.Callback, val)
+                end
+            end)
+        end
+        function Tab:AddDropdown(d)
+            local opts = d.Options or {}
+            local current = 1
+            local btn = CreateButton(Page, d.Name .. " : " .. tostring(opts[current] or ""), function() end)
+            btn.MouseButton1Click:Connect(function()
+                current = current + 1
+                if current > #opts then current = 1 end
+                local sel = opts[current]
+                btn.Text = d.Name .. " : " .. tostring(sel)
+                pcall(d.Callback, sel)
+            end)
+            local ret = {}
+            function ret:Refresh(newOpts) opts = newOpts; btn.Text = d.Name .. " : " .. tostring(opts[1] or "") end
+            return ret
+        end
+        return Tab
+    end
+    return Window
+end
+
+function OrionLib:MakeNotification(d)
+    game.StarterGui:SetCore("SendNotification", { Title = d.Name or "Vortex FX", Text = d.Content or "", Duration = d.Time or 5 })
+end
+function OrionLib:Init() end
+-- =======================================================
+-- [[ END OF CUSTOM ENGINE - SCRIPT CONTINUES BELOW ]]
+-- =======================================================
 
 local AFKOptions = {}
 local Discord = Window:MakeTab({Name = "Discord", Icon = "rbxassetid://4483345998", PremiumOnly = false})
