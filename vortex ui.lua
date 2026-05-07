@@ -1,0 +1,269 @@
+-- [[ VORTEX FX CUSTOM UI ENGINE ]] --
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+
+-- Configuration
+local VortexHubKey = "SYZO2026" -- CHANGE YOUR KEY HERE
+local AccentColor = Color3.fromRGB(138, 43, 226) -- Default Purple Accent
+local IsKeyVerified = false
+
+-- Create ScreenGui
+local Screen = Instance.new("ScreenGui")
+Screen.Name = "VortexFX_Hub"
+Screen.Parent = CoreGui
+Screen.ResetOnSpawn = false
+
+-- ========================================== --
+-- [[ 1. MAIN UI SETUP ]]
+-- ========================================== --
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainUI"
+MainFrame.Parent = Screen
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Visible = true -- Hub opens immediately now!
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.Parent = MainFrame
+
+-- Top Bar (Quantum Onyx Style)
+local TopBar = Instance.new("Frame")
+TopBar.Parent = MainFrame
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+local TopCorner = Instance.new("UICorner")
+TopCorner.CornerRadius = UDim.new(0, 8)
+TopCorner.Parent = TopBar
+
+local Title = Instance.new("TextLabel")
+Title.Parent = TopBar
+Title.Size = UDim2.new(0.5, 0, 1, 0)
+Title.Position = UDim2.new(0.02, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "VORTEX FX MASTER"
+Title.TextColor3 = AccentColor
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Settings & Credits Buttons (Top Right)
+local SettingsBtn = Instance.new("TextButton")
+SettingsBtn.Parent = TopBar
+SettingsBtn.Size = UDim2.new(0, 80, 0, 25)
+SettingsBtn.Position = UDim2.new(0.65, 0, 0.15, 0)
+SettingsBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+SettingsBtn.Text = "Settings"
+SettingsBtn.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", SettingsBtn).CornerRadius = UDim.new(0, 6)
+
+local CreditsBtn = Instance.new("TextButton")
+CreditsBtn.Parent = TopBar
+CreditsBtn.Size = UDim2.new(0, 80, 0, 25)
+CreditsBtn.Position = UDim2.new(0.82, 0, 0.15, 0)
+CreditsBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+CreditsBtn.Text = "Credits"
+CreditsBtn.TextColor3 = Color3.fromRGB(255,255,255)
+Instance.new("UICorner", CreditsBtn).CornerRadius = UDim.new(0, 6)
+
+-- Sidebar (OMG Hub Style)
+local Sidebar = Instance.new("ScrollingFrame")
+Sidebar.Parent = MainFrame
+Sidebar.Size = UDim2.new(0, 130, 0, 300)
+Sidebar.Position = UDim2.new(0, 10, 0, 45)
+Sidebar.BackgroundTransparency = 1
+Sidebar.ScrollBarThickness = 0
+local SidebarLayout = Instance.new("UIListLayout")
+SidebarLayout.Parent = Sidebar
+SidebarLayout.Padding = UDim.new(0, 5)
+
+-- Content Area (Right Side)
+local ContentArea = Instance.new("Frame")
+ContentArea.Parent = MainFrame
+ContentArea.Size = UDim2.new(0, 340, 0, 300)
+ContentArea.Position = UDim2.new(0, 150, 0, 45)
+ContentArea.BackgroundTransparency = 1
+
+-- ========================================== --
+-- [[ 2. UI CREATION FUNCTIONS ]]
+-- ========================================== --
+local function CreateTab(name)
+    local TabBtn = Instance.new("TextButton")
+    TabBtn.Parent = Sidebar
+    TabBtn.Size = UDim2.new(1, 0, 0, 35)
+    TabBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    TabBtn.Text = name
+    TabBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    TabBtn.Font = Enum.Font.GothamSemibold
+    TabBtn.TextSize = 14
+    Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+
+    local Page = Instance.new("ScrollingFrame")
+    Page.Parent = ContentArea
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.BackgroundTransparency = 1
+    Page.ScrollBarThickness = 2
+    Page.Visible = false
+    local PageLayout = Instance.new("UIListLayout")
+    PageLayout.Parent = Page
+    PageLayout.Padding = UDim.new(0, 8)
+
+    TabBtn.MouseButton1Click:Connect(function()
+        for _, child in pairs(ContentArea:GetChildren()) do
+            if child:IsA("ScrollingFrame") then child.Visible = false end
+        end
+        for _, child in pairs(Sidebar:GetChildren()) do
+            if child:IsA("TextButton") then child.TextColor3 = Color3.fromRGB(200, 200, 200) end
+        end
+        Page.Visible = true
+        TabBtn.TextColor3 = AccentColor
+    end)
+
+    return Page
+end
+
+local function CreateToggle(page, text, callback)
+    local ToggleBtn = Instance.new("TextButton")
+    ToggleBtn.Parent = page
+    ToggleBtn.Size = UDim2.new(1, -10, 0, 35)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    ToggleBtn.Text = "  " .. text
+    ToggleBtn.TextXAlignment = Enum.TextXAlignment.Left
+    ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(0, 6)
+    
+    local Indicator = Instance.new("Frame")
+    Indicator.Parent = ToggleBtn
+    Indicator.Size = UDim2.new(0, 15, 0, 15)
+    Indicator.Position = UDim2.new(1, -25, 0.5, -7.5)
+    Indicator.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
+    
+    local state = false
+    ToggleBtn.MouseButton1Click:Connect(function()
+        state = not state
+        Indicator.BackgroundColor3 = state and AccentColor or Color3.fromRGB(60, 60, 60)
+        callback(state)
+    end)
+end
+
+local function CreateButton(page, text, callback)
+    local Btn = Instance.new("TextButton")
+    Btn.Parent = page
+    Btn.Size = UDim2.new(1, -10, 0, 35)
+    Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Btn.Text = text
+    Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 6)
+    Btn.MouseButton1Click:Connect(callback)
+    return Btn
+end
+
+local function CreateInput(page, placeholder)
+    local Box = Instance.new("TextBox")
+    Box.Parent = page
+    Box.Size = UDim2.new(1, -10, 0, 35)
+    Box.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Box.PlaceholderText = placeholder
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 6)
+    return Box
+end
+
+local function CreateLabel(page, text)
+    local Label = Instance.new("TextLabel")
+    Label.Parent = page
+    Label.Size = UDim2.new(1, -10, 0, 25)
+    Label.BackgroundTransparency = 1
+    Label.Text = text
+    Label.TextColor3 = AccentColor
+    Label.Font = Enum.Font.GothamBold
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    return Label
+end
+
+-- ========================================== --
+-- [[ 3. BUILDING YOUR TABS ]]
+-- ========================================== --
+
+-- Initialize Pages
+local FarmPage = CreateTab("Farm")
+local StatsPage = CreateTab("Stats")
+local TeleportPage = CreateTab("Teleport")
+local SettingsPage = CreateTab("Settings")
+local CreditsPage = CreateTab("Credits")
+
+-- Top Buttons Logic
+SettingsBtn.MouseButton1Click:Connect(function()
+    for _, child in pairs(ContentArea:GetChildren()) do if child:IsA("ScrollingFrame") then child.Visible = false end end
+    SettingsPage.Visible = true
+end)
+CreditsBtn.MouseButton1Click:Connect(function()
+    for _, child in pairs(ContentArea:GetChildren()) do if child:IsA("ScrollingFrame") then child.Visible = false end end
+    CreditsPage.Visible = true
+end)
+
+-- Populating Farm Tab
+CreateToggle(FarmPage, "Auto Farm Level", function(val)
+    print("Auto Farm Level is now:", val)
+end)
+CreateToggle(FarmPage, "Auto Farm Nearest", function(val)
+    print("Auto Farm Nearest:", val)
+end)
+
+-- ========================================== --
+-- [[ SETTINGS TAB (Key System & Configs) ]]
+-- ========================================== --
+
+CreateLabel(SettingsPage, "Vortex Key System")
+local KeyInputBox = CreateInput(SettingsPage, "Enter Premium Key Here...")
+
+local VerifyBtn = CreateButton(SettingsPage, "Verify Key", function()
+    -- We can't access 'VerifyBtn' directly in its own callback before it's assigned, 
+    -- so we loop through the page to find it, or just use a generic print for now.
+end)
+
+-- Overwriting the verify button logic properly
+VerifyBtn.MouseButton1Click:Connect(function()
+    if KeyInputBox.Text == VortexHubKey then
+        IsKeyVerified = true
+        VerifyBtn.Text = "Key Verified!"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0) -- Green
+        -- Put code here that unlocks premium features!
+    else
+        VerifyBtn.Text = "Invalid Key!"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- Red
+        task.wait(1.5)
+        VerifyBtn.Text = "Verify Key"
+        VerifyBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end
+end)
+
+CreateLabel(SettingsPage, "Theme Colors")
+CreateButton(SettingsPage, "Change Theme: Purple", function()
+    AccentColor = Color3.fromRGB(138, 43, 226)
+    Title.TextColor3 = AccentColor
+end)
+
+CreateButton(SettingsPage, "Change Theme: Red", function()
+    AccentColor = Color3.fromRGB(255, 50, 50)
+    Title.TextColor3 = AccentColor
+end)
+
+CreateLabel(SettingsPage, "Configuration")
+CreateButton(SettingsPage, "Save Config", function()
+    print("Settings Saved!")
+end)
+
+-- ========================================== --
+-- [[ CREDITS TAB ]]
+-- ========================================== --
+CreateLabel(CreditsPage, "Developer Info")
+CreateButton(CreditsPage, "Discord: vortex_fx (Copy)", function() setclipboard("vortex_fx") end)
+CreateButton(CreditsPage, "YouTube: @syzo_w (Copy)", function() setclipboard("https://youtube.com/@syzo_w") end)
+
+-- Open first tab by default
+FarmPage.Visible = true
