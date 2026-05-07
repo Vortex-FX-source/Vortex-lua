@@ -34,7 +34,6 @@ local AttackDistance = function() end
 -- =======================================================
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
 local VortexHubKey = "SYZO2026"
 local AccentColor = Color3.fromRGB(138, 43, 226) 
@@ -185,8 +184,8 @@ local OrionLib = {}
 local FirstTab = nil
 
 function OrionLib:MakeWindow(cfg)
-    local Window = {}
-    function Window:MakeTab(tcfg)
+    local WindowUI = {}
+    function WindowUI:MakeTab(tcfg)
         local tabName = type(tcfg) == "table" and tcfg.Name or tcfg
         local TabBtn = Instance.new("TextButton", Sidebar)
         TabBtn.Size = UDim2.new(1, 0, 0, 35)
@@ -292,7 +291,7 @@ function OrionLib:MakeWindow(cfg)
         end
         return Tab
     end
-    return Window
+    return WindowUI
 end
 
 function OrionLib:MakeNotification(d)
@@ -302,6 +301,14 @@ function OrionLib:Init() end
 -- =======================================================
 -- [[ END OF CUSTOM ENGINE - SCRIPT CONTINUES BELOW ]]
 -- =======================================================
+
+local Window = OrionLib:MakeWindow({
+    Name = "vortex fx : Blox Fruits",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "VortexFX",
+    IntroText = "by syzo gamer"
+})
 
 local AFKOptions = {}
 local Discord = Window:MakeTab({Name = "Discord", Icon = "rbxassetid://4483345998", PremiumOnly = false})
