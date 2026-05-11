@@ -14,7 +14,39 @@ local Sea3 = game.PlaceId == 7447361652
 local IsOwner = true
 local Enemies = workspace:FindFirstChild("Enemies") or workspace
 local Camera = workspace.CurrentCamera
+-- [[ VORTEX FIREBALL - GLOBAL TRACKER LOGIC ]] --
+local DATABASE_URL = "https://vortex-6af9a-default-rtdb.firebaseio.com/Servers.json"
+local HttpService = game:GetService("HttpService")
+local LastReported = 0
 
+-- Function to SEND your server info to Firebase
+local function sendFireballReport(eventName)
+    local data = {
+        JobId = game.JobId,
+        Event = eventName,
+        Sea = (Sea1 and "Sea 1") or (Sea2 and "Sea 2") or (Sea3 and "Sea 3"),
+        Time = os.time()
+    }
+    pcall(function()
+        HttpService:PostAsync(DATABASE_URL, HttpService:JSONEncode(data))
+    end)
+end
+
+-- Function to check if Mirage/Moon/Raid is active in YOUR server
+local function scanLocalEvents()
+    if Lighting.ClockTime >= 18 or Lighting.ClockTime <= 5 then
+        if game.Lighting:FindFirstChild("FullMoon") or Lighting.ClockTime == 0 then
+            sendFireballReport("Full Moon 🌕")
+        else
+            sendFireballReport("Night (Near Moon) 🌙")
+        end
+    end
+    if workspace.Map:FindFirstChild("MirageIsland") then sendFireballReport("Mirage Island 🏝️") end
+    if workspace:FindFirstChild("Factory") and workspace.Map.Factory:FindFirstChild("Core") and workspace.Map.Factory.Core.Health > 0 then
+        sendFireballReport("Factory Raid 🏭")
+    end
+    if workspace.Enemies:FindFirstChild("Pirate Brigade") then sendFireballReport("Pirate Raid 🏴‍☠️") end
+end
 -- FATAL CRASH FIXES: These were missing, causing the menu to instantly die before loading.
 local BossListT = {
     "Gorilla King", "Bobby", "Yeti", "Mob Leader", "Vice Admiral", "Warden", 
@@ -422,6 +454,110 @@ local Teleport = Window:MakeTab({"Teleport", "Locate"})
 local Visual = Window:MakeTab({"Visual", "User"})
 local Shop = Window:MakeTab({"Shop", "ShoppingCart"})
 local Misc = Window:MakeTab({"Misc", "Settings"})
+
+-- [[ PART 2: VORTEX SPECIAL TAB & FIREBALL FINDER ]] --
+
+local SpecialTab = Window:MakeTab({"Special 🔥", "Star"})
+
+SpecialTab:AddSection({"Global Fireball Tracker"})
+
+SpecialTab:AddToggle({
+    Name = "Auto-Report My Server",
+    Description = "Shares your server's Moon/Mirage with all Vortex users",
+    Callback = function(Value)
+        getgenv().Reporting = Value
+        task.spawn(function()
+            while getgenv().Reporting do
+                -- This calls the scan function we put at the top of the script
+                pcall(function() scanLocalEvents() end) 
+                task.wait(300) -- Reports status every 5 minutes
+            end
+        end)
+    end
+})
+
+SpecialTab:AddSection({"Server Finder (Teleport)"})
+
+-- Internal function to handle the Firebase Fetch and Teleport
+local function fetchFireball(targetEvent)
+    local success, result = pcall(function()
+        return game:GetService("HttpService"):GetAsync("https://vortex-6af9a-default-rtdb.firebaseio.com/Servers.json")
+    end)
+    
+    if success and result and result ~= "null" then
+        local data = game:GetService("HttpService"):JSONDecode(result)
+        local found = false
+        
+        for _, info in pairs(data) do
+            if info.Event == targetEvent then
+                found = true
+                redzlib:MakeNotify({
+                    Name = "Vortex Finder",
+                    Text = "Found " .. targetEvent .. "! Joining...",
+                    Time = 5
+                })
+                task.wait(1)
+                game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, info.JobId, Player)
+                break
+            end
+        end
+        if not found then
+            redzlib:MakeNotify({Name = "Vortex", Text = "No " .. targetEvent .. " found in database.", Time = 5})
+        end
+    else
+        redzlib:MakeNotify({Name = "Vortex Error", Text = "Database is empty or offline.", Time = 5})
+    end
+end
+
+SpecialTab:AddButton({
+    Name = "Find Mirage Island Server 🏝️",
+    Callback = function()
+        fetchFireball("Mirage Island 🏝️")
+    end
+})
+
+SpecialTab:AddButton({
+    Name = "Find Full Moon Server 🌕",
+    Callback = function()
+        fetchFireball("Full Moon 🌕")
+    end
+})
+
+SpecialTab:AddButton({
+    Name = "Find Near Full Moon Server 🌙",
+    Callback = function()
+        fetchFireball("Night (Near Moon) 🌙")
+    end
+})
+
+SpecialTab:AddButton({
+    Name = "Find Factory / Pirate Raid 🏭",
+    Callback = function()
+        -- Checks for both types of raids
+        fetchFireball("Factory Raid 🏭")
+        fetchFireball("Pirate Raid 🏴‍☠️")
+    end
+})
+
+SpecialTab:AddSection({"Script Management"})
+
+SpecialTab:AddButton({
+    Name = "Copy Discord Invite",
+    Callback = function()
+        setclipboard("https://discord.gg/sAUgSnu42T")
+        redzlib:MakeNotify({Name = "Vortex", Text = "Invite copied!", Time = 3})
+    end
+})
+
+SpecialTab:AddButton({
+    Name = "Unload Vortex Hub",
+    Callback = function()
+        redzlib:Destroy()
+    end
+})
+
+-- [[ BLANK LINE ABOVE TO KEEP IT CLEAN ]] --
+
 MainFarm:AddDropdown({
  Name = "Farm Tool",
  Options = {"Melee", "Sword", "Blox Fruit"},
