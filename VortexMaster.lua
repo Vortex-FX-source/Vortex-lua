@@ -11,7 +11,7 @@ local MaxLavel = 2550
 local Sea1 = game.PlaceId == 2753915549
 local Sea2 = game.PlaceId == 4442272183
 local Sea3 = game.PlaceId == 7447361652
-
+local IsOwner = true
 local Enemies = workspace:FindFirstChild("Enemies") or workspace
 local Camera = workspace.CurrentCamera
 
