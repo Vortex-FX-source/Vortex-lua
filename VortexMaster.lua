@@ -11,7 +11,7 @@ local MaxLavel = 2550
 local Sea1 = game.PlaceId == 2753915549
 local Sea2 = game.PlaceId == 4442272183
 local Sea3 = game.PlaceId == 7447361652
-local IsOwner = false
+
 local Enemies = workspace:FindFirstChild("Enemies") or workspace
 local Camera = workspace.CurrentCamera
 
@@ -268,7 +268,7 @@ if Sea3 then
  end
  })
 end
-if Sea3 and IsOwner then
+if Sea3 then
  local MirageTab = Window:MakeTab({"Race V4", ""})
 
  MirageTab:AddToggle({"Auto Pull Lever", false, function(Value)
@@ -1084,13 +1084,11 @@ elseif Sea3 then
  end
  end)
 
- if not IsOwner then
  task.spawn(function()
  while task.wait(1) do
  LabelElit3:SetTitle("Elite Hunter progress : " .. FireRemote("EliteHunter", "Progress"))
  end
  end)
- end
 
  table.insert(AFKOptions, QuestsTabs:AddToggle({
  Name = "Auto Elite Hunter",
@@ -1238,7 +1236,6 @@ elseif Sea3 then
 
  local CakeLabel = QuestsTabs:AddParagraph({"Stats : 0"})
 
- if not IsOwner then
  task.spawn(function()
  while task.wait(1) do
  if VerifyNPC("Dough King") then
@@ -1251,7 +1248,6 @@ elseif Sea3 then
  end
  end
  end)
- end
 
  local CakePrinceToggle = QuestsTabs:AddToggle({"Auto Cake Prince", false, function(Value)
  getgenv().AutoCakePrince = Value
@@ -2140,7 +2136,7 @@ Misc:AddTextBox({Name = "Input Job Id",Default = "",PlaceholderText = "Job ID",C
  ServerId = Value
 end})
 Misc:AddButton({"Join Server", function()
- loadstring(game:HttpGet("https://raw.githubusercontent.com/REDzHUB/Webhook/main/BloxFruits.lua"))():Teleport(ServerId)
+ game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, ServerId, Player)
 end})
 Misc:AddSection({"Configs"})
 Misc:AddSlider({"Farm Distance", 5, 30, 1, 20, function(Value)
