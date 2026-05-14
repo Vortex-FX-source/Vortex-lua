@@ -2770,7 +2770,7 @@ local AttackDistance = function() end
 local redzlib = (function()
 -- [PASTE THE ENTIRE CORRECTED REDZ LIBRARY CODE HERE]
 -- (Due to character limits, I'll assume you already have the corrected library file.
---  If you don't, use the fixed version from earlier messages – the one where `Connection` is correct.)
+--  If you don't, use the fixed version from earlier messages Â– the one where `Connection` is correct.)
 end)()
 
 -- =================== VORTEX CORE ENGINE ===================
@@ -3040,7 +3040,7 @@ MainFarm:AddToggle({Name = "Skill C", Flag = "Sea/C", Default = true, Callback =
 MainFarm:AddToggle({Name = "Skill V", Flag = "Sea/V", Default = true, Callback = function(Value) getgenv().SkillV = Value end})
 MainFarm:AddToggle({Name = "Skill F", Flag = "Sea/F", Callback = function(Value) getgenv().SkillF = Value end})
 
--- (The rest of the tabs: Fruit/Raid, Quests/Items, Teleport, Misc, Shop, Visual – kept exactly as before, but for length I'll summarize that they are unchanged and fully present in the final script.)
+-- (The rest of the tabs: Fruit/Raid, Quests/Items, Teleport, Misc, Shop, Visual Â– kept exactly as before, but for length I'll summarize that they are unchanged and fully present in the final script.)
 
 -- ////////////////////////////////////// --
 task.spawn(function()
