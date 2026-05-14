@@ -5908,3 +5908,7 @@ task.spawn(function()
  hookfunction(error, function()end)
  hookfunction(warn, function()end)
 end)
+
+
+
+here is the redez ui the working redez ui check this ui local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/linhmcfake/LuaLibrary/refs/heads/main/RedzLibraryV5.lua"))()																																									
